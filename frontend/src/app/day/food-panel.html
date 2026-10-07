@@ -1,0 +1,69 @@
+<section class="panel panel--food">
+  <header>
+    <h2>Food &amp; weight</h2>
+    @if (totals(); as t) {
+      <span class="kcal num">{{ t.kcal | number: '1.0-0' }} kcal</span>
+    }
+  </header>
+
+  <div class="weight">
+    <label class="field">
+      <span>Body weight</span>
+      <div class="suffix">
+        <input class="input num" type="number" inputmode="decimal" step="0.1" min="20" max="400"
+               placeholder="–" [(ngModel)]="weightText"
+               (blur)="saveWeight()" (keydown.enter)="saveWeight()" />
+        <span>kg</span>
+      </div>
+    </label>
+    @if (delta() !== null) {
+      <p class="delta num" [class.down]="delta()! < 0" [class.up]="delta()! > 0">
+        {{ delta()! > 0 ? '+' : '' }}{{ delta() | number: '1.1-1' }} kg
+        <span>since {{ previousDate() | date: 'd MMM' }}</span>
+      </p>
+    } @else if (previous(); as p) {
+      <p class="delta"><span>Last: {{ p.weight_kg | number: '1.1-1' }} kg on {{ previousDate() | date: 'd MMM' }}</span></p>
+    }
+  </div>
+
+  <app-food-input class="add" (picked)="addFood($event)" />
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (foods().length) {
+    <ul class="foods">
+      @for (food of foods(); track food.id) {
+        <li>
+          <time class="num">{{ food.created_at.slice(11, 16) }}</time>
+          <div class="body">
+            <p>{{ food.description }}</p>
+            @if (food.calories_kcal !== null) {
+              <div class="macros num">
+                <span>{{ food.calories_kcal | number: '1.0-0' }} kcal</span>
+                <span><b>{{ food.protein_g | number: '1.0-0' }}</b> g protein</span>
+                <span>{{ food.carbs_g | number: '1.0-0' }} g carbs</span>
+                <span>{{ food.fat_g | number: '1.0-0' }} g fat</span>
+              </div>
+            }
+          </div>
+          <button class="icon-btn" type="button" (click)="deleteFood(food.id)" [attr.aria-label]="'Delete ' + food.description">✕</button>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="empty">Nothing logged yet. Add one entry per meal or snack.</p>
+  }
+
+  @if (totals(); as t) {
+    <dl class="totals num">
+      <div><dt>Protein</dt><dd>{{ t.protein | number: '1.0-0' }} g</dd></div>
+      <div><dt>Carbs</dt><dd>{{ t.carbs | number: '1.0-0' }} g</dd></div>
+      <div><dt>Fat</dt><dd>{{ t.fat | number: '1.0-0' }} g</dd></div>
+    </dl>
+    @if (t.missing > 0) {
+      <p class="hint">{{ t.missing }} {{ t.missing === 1 ? 'entry has' : 'entries have' }} no nutrients yet. Run the analysis again to fill them in.</p>
+    }
+  }
+</section>

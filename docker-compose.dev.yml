@@ -1,0 +1,21 @@
+# Development extras: live PHP code, DB port for tools, phpMyAdmin.
+# docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+# Frontend with live reload: cd frontend && npm start -- --port 47200
+services:
+  app:
+    volumes:
+      - ./backend:/var/www/html
+
+  db:
+    ports:
+      - "47306:3306"
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+    ports:
+      - "47081:80"

@@ -1,0 +1,33 @@
+﻿daylog - Tagebuch für Essen, Gewicht und Training
+==================================================
+
+EINMALIG EINRICHTEN
+1. Docker Desktop installieren: https://www.docker.com/products/docker-desktop/
+   Falls Windows nach WSL fragt: PowerShell als Administrator öffnen,
+   "wsl --install --no-distribution" ausführen und den PC neu starten.
+2. Docker Desktop starten und warten, bis "Engine running" angezeigt wird.
+3. Diesen Ordner an einen festen Ort legen, z. B. C:\daylog
+   (nicht in OneDrive oder auf den Desktop, wenn der synchronisiert wird).
+4. start.bat doppelklicken. Der Browser öffnet daylog.
+5. In der App das Setup ausfüllen. Fuer die KI-Auswertung unter Settings
+   einen kostenlosen Gemini-Key eintragen: https://aistudio.google.com/apikey
+
+AUTOMATISCH BEIM PC-START
+In Docker Desktop unter Settings > General "Start Docker Desktop when you
+sign in" aktivieren. daylog ist dann immer unter der Adresse erreichbar,
+die start.bat beim ersten Mal geöffnet hat (meist http://localhost:47080).
+Am besten ein Lesezeichen setzen.
+
+UPDATE
+Zeigt die App "daylog x.y is available": update.bat doppelklicken.
+Vorher wird automatisch ein Backup im Ordner "backups" gespeichert.
+
+DATEIEN
+start.bat    daylog starten
+update.bat   neue Version holen (mit Backup)
+stop.bat     daylog beenden (Daten bleiben erhalten)
+.env         Einstellungen und Passwörter. Nicht löschen!
+             Eine Kopie liegt in backups\env-backup.txt
+backups\     Sicherungen deiner Daten
+
+macOS / Linux: ./start.sh, ./update.sh, ./stop.sh

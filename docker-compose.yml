@@ -1,0 +1,40 @@
+name: daylog
+
+# daylog: everything you need to run the app.
+# Start: start.bat (Windows) / ./start.sh (macOS, Linux), or `docker compose up -d --build`.
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-daylog}
+      MYSQL_USER: ${DB_USER:-daylog}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-daylog}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      TZ: ${TZ:-Europe/Berlin}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      retries: 30
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_NAME: ${DB_NAME:-daylog}
+      DB_USER: ${DB_USER:-daylog}
+      DB_PASSWORD: ${DB_PASSWORD:-daylog}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
+      TZ: ${TZ:-Europe/Berlin}
+    ports:
+      - "${APP_PORT:-47080}:80"
+
+volumes:
+  db_data:

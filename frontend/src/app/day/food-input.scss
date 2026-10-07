@@ -1,0 +1,43 @@
+:host { display: block; }
+
+.combo { position: relative; }
+
+.row { display: flex; gap: 8px; }
+
+.list {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 52px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border-radius: 14px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-2);
+  box-shadow: 0 12px 32px #0008;
+  max-height: 320px;
+  overflow-y: auto;
+
+  .caption { padding: 4px 10px 6px; font-size: 0.75rem; color: var(--muted); cursor: default; }
+
+  li[role='option'] {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0 12px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+
+    &.active { background: #f0b35a1f; }
+  }
+
+  .name { overflow-wrap: anywhere; }
+  .meta { grid-column: 1; font-size: 0.8rem; color: var(--muted); }
+  .uses { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-size: 0.8rem; color: var(--faint); }
+}
+
+@media (max-width: 520px) {
+  .list { right: 0; }
+}

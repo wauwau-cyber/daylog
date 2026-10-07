@@ -1,0 +1,51 @@
+:host { display: block; }
+
+.setup {
+  --accent: var(--text);
+  max-width: 460px;
+  margin: clamp(32px, 8vw, 72px) auto 0;
+}
+
+h1 { font-size: clamp(2rem, 6vw, 2.8rem); font-weight: 800; letter-spacing: -0.04em; }
+
+.lead { color: var(--muted); margin: 10px 0 32px; }
+
+form { display: flex; flex-direction: column; gap: 20px; }
+
+fieldset { border: 0; margin: 0; padding: 0; }
+legend { font-size: 0.85rem; color: var(--muted); margin-bottom: 6px; padding: 0; }
+
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+
+  label {
+    display: grid;
+    place-items: center;
+    min-height: 38px;
+    border-radius: 10px;
+    color: var(--muted);
+    cursor: pointer;
+    font-weight: 500;
+
+    &.on { background: var(--surface-2); color: var(--text); }
+    &:has(:focus-visible) { outline: 2px solid var(--text); outline-offset: -2px; }
+  }
+
+  input { position: absolute; opacity: 0; pointer-events: none; }
+
+  &.two { grid-template-columns: repeat(2, 1fr); }
+  label { text-align: center; padding: 0 6px; line-height: 1.2; }
+}
+
+.hint { display: block; margin-top: 6px; color: var(--muted); font-size: 0.85rem; }
+.target { max-width: 220px; }
+
+.btn { margin-top: 8px; align-self: flex-start; }

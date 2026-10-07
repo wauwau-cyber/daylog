@@ -1,0 +1,38 @@
+# daylog: start with start.bat (Windows) or ./start.sh (macOS, Linux).
+# Settings live in .env, which the start script creates. Please don't delete it.
+name: daylog
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: daylog
+      MYSQL_USER: daylog
+      MYSQL_PASSWORD: ${DB_PASSWORD:?run start.bat first}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?run start.bat first}
+      TZ: ${TZ:-Europe/Berlin}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 30
+
+  app:
+    image: __IMAGE__:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_NAME: daylog
+      DB_USER: daylog
+      DB_PASSWORD: ${DB_PASSWORD}
+      TZ: ${TZ:-Europe/Berlin}
+    ports:
+      - "${APP_PORT:-47080}:80"
+
+volumes:
+  db_data:

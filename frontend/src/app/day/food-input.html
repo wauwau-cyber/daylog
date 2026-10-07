@@ -1,0 +1,37 @@
+<div class="combo">
+  <div class="row">
+    <input #input class="input" type="text" maxlength="500" autocomplete="off"
+           placeholder="What did you eat? e.g. 2 eggs and toast"
+           role="combobox" aria-label="Food" aria-autocomplete="list"
+           aria-controls="food-suggestions"
+           [attr.aria-expanded]="open() && suggestions().length > 0"
+           [attr.aria-activedescendant]="active() >= 0 ? 'food-opt-' + active() : null"
+           [ngModel]="text()" (ngModelChange)="onInput($event)"
+           (focus)="onFocus()" (blur)="close()" (keydown)="onKeydown($event)" />
+    <button class="btn btn--square" type="button" aria-label="Add food"
+            [disabled]="!text().trim() && active() < 0" (click)="submit()">+</button>
+  </div>
+
+  @if (open() && suggestions().length) {
+    <ul class="list" id="food-suggestions" role="listbox" aria-label="Earlier foods">
+      @if (!text().trim()) {
+        <li class="caption" role="presentation">Most frequent</li>
+      }
+      @for (s of suggestions(); track s.source_id; let i = $index) {
+        <li role="option" [id]="'food-opt-' + i" [attr.aria-selected]="i === active()"
+            [class.active]="i === active()"
+            (mousedown)="$event.preventDefault(); choose(s)" (mouseenter)="active.set(i)">
+          <span class="name">{{ s.description }}</span>
+          <span class="meta num">
+            @if (s.has_nutrients) {
+              {{ s.calories_kcal | number: '1.0-0' }} kcal, {{ s.protein_g | number: '1.0-0' }} g protein
+            } @else {
+              not analyzed yet
+            }
+          </span>
+          <span class="uses num" [attr.title]="'Logged ' + s.uses + ' times'">{{ s.uses }}×</span>
+        </li>
+      }
+    </ul>
+  }
+</div>

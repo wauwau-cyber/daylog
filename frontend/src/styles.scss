@@ -1,0 +1,185 @@
+:root {
+  --bg: #171a26;
+  --surface: #1f2333;
+  --surface-2: #2a2f45;
+  --line: #31375160;
+  --line-strong: #3b4262;
+  --text: #ebe9f4;
+  --muted: #9195b3;
+  --faint: #636886;
+
+  --food: #f0b35a;
+  --train: #6fd1c4;
+  --ai: #b8a6ff;
+  --danger: #ff8a80;
+
+  --font-display: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Figtree', 'Segoe UI', system-ui, sans-serif;
+
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { margin: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent, var(--text));
+  outline-offset: 2px;
+}
+
+.num { font-variant-numeric: tabular-nums; }
+
+/* Panels: each block owns an accent colour via --accent */
+.panel {
+  --accent: var(--text);
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 22px;
+
+  > header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      &::before {
+        content: '';
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        background: var(--accent);
+      }
+    }
+  }
+}
+
+.panel--food { --accent: var(--food); }
+.panel--train { --accent: var(--train); }
+.panel--ai { --accent: var(--ai); }
+
+/* Form controls */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  > span { font-size: 0.85rem; color: var(--muted); }
+}
+
+input, select, textarea, button { font: inherit; color: inherit; }
+
+.input, select.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line-strong);
+  background: var(--bg);
+  transition: border-color 0.15s;
+
+  &::placeholder { color: var(--faint); }
+  &:hover { border-color: var(--faint); }
+  &:focus { outline: none; border-color: var(--accent, var(--text)); }
+}
+
+select.input {
+  appearance: none;
+  padding-right: 36px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+                    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+
+input[type='number'] { -moz-appearance: textfield; }
+input[type='number']::-webkit-inner-spin-button { opacity: 0.4; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: var(--accent, var(--text));
+  color: #161925;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.05s;
+
+  &:hover:not(:disabled) { filter: brightness(1.08); }
+  &:active:not(:disabled) { transform: translateY(1px); }
+  &:disabled { opacity: 0.45; cursor: not-allowed; }
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+
+.btn--square { width: 44px; padding: 0; font-size: 1.4rem; line-height: 1; }
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--faint);
+  cursor: pointer;
+
+  &:hover { color: var(--danger); background: #ff8a8014; }
+}
+
+.error {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #ff8a8014;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+.empty {
+  margin: 0;
+  color: var(--faint);
+  font-size: 0.95rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

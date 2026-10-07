@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# Existing files (built Angular app, favicon) are served directly
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# API
+RewriteRule ^api(/|$) index.php [QSA,L]
+
+# Everything else is an Angular route
+RewriteRule ^ index.html [L]

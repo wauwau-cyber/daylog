@@ -1,0 +1,15 @@
+<header class="topbar">
+  <a class="brand" [routerLink]="today()">daylog</a>
+  @if (hasProfile()) {
+    <nav aria-label="Main">
+      <a [routerLink]="today()" [class.active]="onDayRoute()">Days</a>
+      <a routerLink="/exercises" routerLinkActive="active">Exercises</a>
+      <a routerLink="/setup" routerLinkActive="active">Profile</a>
+      <a routerLink="/settings" routerLinkActive="active">Settings</a>
+    </nav>
+  }
+</header>
+<app-update-banner />
+<main>
+  <router-outlet />
+</main>

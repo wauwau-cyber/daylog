@@ -1,0 +1,66 @@
+@if (targets(); as t) {
+  <section class="panel panel--goal">
+    <header>
+      <h2>{{ goalText() }}</h2>
+      <a routerLink="/setup" class="change">Change goal</a>
+    </header>
+
+    @if (toTarget() !== null) {
+      <p class="target-weight num">
+        Target {{ t.goal.target_weight_kg | number: '1.0-1' }} kg,
+        @if (toTarget()! === 0) { reached } @else { {{ (toTarget()! > 0 ? toTarget()! : -toTarget()!) | number: '1.1-1' }} kg to go }
+      </p>
+    }
+
+    <div class="meters">
+      @for (m of meters(); track m.label) {
+        <div class="meter" [attr.data-status]="m.status">
+          <div class="label">{{ m.label }}</div>
+          <div class="value num">
+            <strong>{{ m.actual === null ? '–' : (m.actual | number: '1.0-0') }}</strong>
+            <span>/ {{ m.target | number: '1.0-0' }} {{ m.unit }}</span>
+          </div>
+          <div class="bar" role="img"
+               [attr.aria-label]="m.label + ': ' + (m.actual ?? 0) + ' of ' + m.target + ' ' + m.unit">
+            <i [style.width.%]="m.fill"></i>
+            <b [style.left.%]="markerPos"></b>
+          </div>
+          <div class="status">{{ m.statusText || ' ' }}</div>
+        </div>
+      }
+    </div>
+
+    @if (!hasIntake()) {
+      <p class="hint">Targets are ready. Analyze the day to estimate what you ate and compare.</p>
+    } @else if (missing() > 0) {
+      <p class="hint">{{ missing() }} food {{ missing() === 1 ? 'entry is' : 'entries are' }} not counted yet. Analyze again to include {{ missing() === 1 ? 'it' : 'them' }}.</p>
+    }
+
+    <details>
+      <summary>How the calorie target is calculated</summary>
+      <table class="num">
+        <tr><td>Resting burn incl. basic movement</td><td>{{ t.base_kcal | number: '1.0-0' }}</td></tr>
+        <tr>
+          <td>Steps @if (t.steps !== null) { ({{ t.steps | number }}) }</td>
+          <td>@if (t.steps !== null) { +{{ t.steps_kcal | number: '1.0-0' }} } @else { <span class="muted">not logged</span> }</td>
+        </tr>
+        <tr>
+          <td>Training</td>
+          <td>@if (t.training_kcal !== null) { +{{ t.training_kcal | number: '1.0-0' }} } @else { <span class="muted">from analysis</span> }</td>
+        </tr>
+        <tr>
+          <td>Goal adjustment</td>
+          <td>{{ t.goal_adjustment_kcal > 0 ? '+' : '' }}{{ t.goal_adjustment_kcal | number: '1.0-0' }}</td>
+        </tr>
+        <tr class="total"><td>Target</td><td>{{ t.expected_kcal | number: '1.0-0' }} kcal</td></tr>
+      </table>
+      @if (t.floored_to_bmr) {
+        <p class="note">Raised to your resting metabolism ({{ t.bmr_kcal | number: '1.0-0' }} kcal). Eating less than that is not recommended.</p>
+      }
+      <p class="note">
+        Based on {{ t.weight_kg | number: '1.1-1' }} kg. Protein {{ t.protein_g }} g fits your goal,
+        fiber {{ t.fiber_g }} g is the general recommendation.
+      </p>
+    </details>
+  </section>
+}

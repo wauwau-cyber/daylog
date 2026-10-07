@@ -1,0 +1,68 @@
+<section class="page">
+  <h1>Exercises</h1>
+  <p class="lead">These appear in the training block of every day. Progress compares your best set (most reps in one set) of the last 7 days.</p>
+
+  <div class="panel panel--train">
+    <form class="add" (ngSubmit)="add()">
+      <input class="input" name="name" maxlength="100" placeholder="New exercise, e.g. Chin-ups"
+             aria-label="Exercise name" autocomplete="off" [(ngModel)]="name" />
+      <button class="btn" type="submit" [disabled]="!name().trim() || busy()">Add exercise</button>
+    </form>
+
+    @if (error()) { <p class="error">{{ error() }}</p> }
+    @if (notice()) { <p class="notice">{{ notice() }}</p> }
+
+    @if (active().length) {
+      <ul class="list">
+        @for (ex of active(); track ex.id) {
+          <li>
+            <div class="title">
+              <span class="name">{{ ex.name }}</span>
+              <span class="meta num">{{ ex.set_count ? ex.set_count + ' sets logged' : 'Not used yet' }}</span>
+            </div>
+            @if (progress()[ex.id]; as p) {
+              <app-sparkline class="spark" [values]="weeklyBest(p)" [label]="'Best set per week, last 12 weeks'" />
+              <dl class="stats num">
+                <div>
+                  <dt>Best set</dt>
+                  <dd>{{ p.current_best ?? p.all_time_best }}@if (p.current_best === null) {<small> (all time)</small>}</dd>
+                </div>
+                <div>
+                  <dt>4 weeks</dt>
+                  <dd [attr.data-trend]="trendOf(p.change_4_weeks_pct)">
+                    {{ p.change_4_weeks_pct === null ? '–' : formatPct(p.change_4_weeks_pct) }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Since start</dt>
+                  <dd [attr.data-trend]="trendOf(p.change_since_start_pct)">
+                    {{ p.change_since_start_pct === null ? '–' : formatPct(p.change_since_start_pct) }}
+                  </dd>
+                </div>
+              </dl>
+            } @else {
+              <span class="spark slot"></span><span class="stats slot"></span>
+            }
+            <button class="btn btn--ghost small" type="button" (click)="remove(ex)" [disabled]="busy()">Remove</button>
+          </li>
+        }
+      </ul>
+    } @else {
+      <p class="empty">No exercises yet. Add the ones you train.</p>
+    }
+  </div>
+
+  @if (archived().length) {
+    <h2>Hidden</h2>
+    <p class="lead small">Removed exercises with logged sets. Restore to use them again.</p>
+    <ul class="list archived">
+      @for (ex of archived(); track ex.id) {
+        <li>
+          <span class="name">{{ ex.name }}</span>
+          <span class="meta num">{{ ex.set_count }} sets logged</span>
+          <button class="btn btn--ghost small" type="button" (click)="restore(ex)" [disabled]="busy()">Restore</button>
+        </li>
+      }
+    </ul>
+  }
+</section>

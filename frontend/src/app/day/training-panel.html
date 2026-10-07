@@ -1,0 +1,64 @@
+<section class="panel panel--train">
+  <header>
+    <h2>Training</h2>
+    @if (totalSets()) {
+      <span class="count num">{{ totalSets() }} {{ totalSets() === 1 ? 'set' : 'sets' }}</span>
+    }
+  </header>
+
+  @if (store.exercises().length) {
+    <form class="add" (ngSubmit)="addSet()">
+      <label class="field exercise">
+        <span>Exercise</span>
+        <select class="input" name="exercise" [(ngModel)]="exerciseId">
+          @for (ex of store.exercises(); track ex.id) {
+            <option [ngValue]="ex.id">{{ ex.name }}</option>
+          }
+        </select>
+      </label>
+      <label class="field reps">
+        <span>Reps</span>
+        <input class="input num" type="number" name="reps" inputmode="numeric" min="1" max="10000"
+               placeholder="10" [(ngModel)]="reps" />
+      </label>
+      <button class="btn btn--square" type="submit" [disabled]="!canAdd()" aria-label="Add set">+</button>
+    </form>
+  } @else {
+    <p class="empty">No exercises yet. <a routerLink="/exercises">Add your first exercise</a>.</p>
+  }
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (groups().length) {
+    <ul class="groups">
+      @for (group of groups(); track group.exerciseId) {
+        <li>
+          <div class="head">
+            <h3>{{ group.name }}</h3>
+            <span class="num">{{ group.total }} reps</span>
+          </div>
+          @if (group.best !== null) {
+            <p class="progress num">
+              Best set {{ group.best }}
+              @if (group.progress; as pr) {
+                <span [attr.data-trend]="pr.trend">{{ pr.text }}</span>
+              }
+            </p>
+          }
+          <ol class="sets">
+            @for (set of group.sets; track set.id; let i = $index) {
+              <li>
+                <span class="num" [attr.aria-label]="'Set ' + (i + 1) + ': ' + set.reps + ' reps'">{{ set.reps }}</span>
+                <button type="button" (click)="deleteSet(set.id)" [attr.aria-label]="'Delete set ' + (i + 1)">✕</button>
+              </li>
+            }
+          </ol>
+        </li>
+      }
+    </ul>
+  } @else if (store.exercises().length) {
+    <p class="empty">No sets yet. Pick an exercise, enter reps, press + after every set.</p>
+  }
+</section>

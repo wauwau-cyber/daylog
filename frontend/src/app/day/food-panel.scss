@@ -1,0 +1,73 @@
+:host { display: block; }
+
+.kcal { font-family: var(--font-display); font-weight: 700; color: var(--food); }
+
+.weight {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+
+  .field { width: 150px; }
+}
+
+.suffix {
+  position: relative;
+  .input { padding-right: 40px; }
+  > span { position: absolute; right: 14px; top: 50%; translate: 0 -50%; color: var(--muted); pointer-events: none; }
+}
+
+.delta {
+  margin: 0 0 10px;
+  font-weight: 600;
+  span { color: var(--muted); font-weight: 400; margin-left: 4px; }
+}
+
+.add { margin-bottom: 12px; }
+
+.foods {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 10px;
+    align-items: start;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+
+    &:last-child { border-bottom: 0; }
+  }
+
+  time { color: var(--faint); font-size: 0.85rem; padding-top: 2px; }
+  p { margin: 0; overflow-wrap: anywhere; }
+}
+
+.macros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 4px;
+  font-size: 0.82rem;
+  color: var(--muted);
+
+  b { color: var(--food); font-weight: 600; }
+}
+
+.totals {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 16px 0 0;
+
+  div { padding: 10px 12px; border-radius: 12px; background: var(--bg); }
+  dt { font-size: 0.8rem; color: var(--muted); }
+  dd { margin: 0; font-weight: 600; }
+}
+
+.hint { margin: 10px 0 0; font-size: 0.85rem; color: var(--muted); }

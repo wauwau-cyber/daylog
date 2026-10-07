@@ -1,0 +1,62 @@
+# Builds the Docker image and the download package whenever a version tag (v1.2.3) is pushed.
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write   # create the GitHub release
+  packages: write   # push the image to ghcr.io
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Names
+        id: names
+        run: |
+          echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+          echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # amd64 for Windows/Intel PCs, arm64 for Apple Silicon Macs
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          build-args: |
+            VERSION=${{ steps.names.outputs.version }}
+            REPO=${{ github.repository }}
+          tags: |
+            ${{ steps.names.outputs.image }}:${{ steps.names.outputs.version }}
+            ${{ steps.names.outputs.image }}:latest
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.version=${{ steps.names.outputs.version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build download package
+        run: |
+          mkdir -p package/daylog
+          cp -r distribution/. package/daylog/
+          sed -i "s#__IMAGE__#${{ steps.names.outputs.image }}#g" package/daylog/docker-compose.yml
+          chmod +x package/daylog/*.sh
+          (cd package && zip -r ../daylog.zip daylog)
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: daylog.zip
+          generate_release_notes: true

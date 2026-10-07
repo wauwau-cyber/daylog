@@ -1,0 +1,56 @@
+<section class="hero" aria-label="Selected day">
+  <a class="step" [routerLink]="link(-1)" aria-label="Previous day" title="Previous day (←)">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+  </a>
+
+  <div class="title">
+    <p class="relative">
+      {{ relativeLabel() }}
+      @if (!isToday()) {
+        <a routerLink="/day/{{ today }}" class="jump">Back to today</a>
+      }
+    </p>
+    <h1>
+      <span class="weekday">{{ dateObj() | date: 'EEEE' }}</span>
+      <span class="full num">{{ dateObj() | date: 'd MMMM y' }}</span>
+    </h1>
+  </div>
+
+  <a class="step" [routerLink]="link(1)" aria-label="Next day" title="Next day (→)">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+  </a>
+</section>
+
+<ol class="week" aria-label="Week">
+  @for (d of week(); track d.iso) {
+    <li>
+      <a [routerLink]="['/day', d.iso]"
+         [class.selected]="d.iso === date()"
+         [class.today]="d.iso === today"
+         [class.trained]="d.trained"
+         [class.rest]="d.rest && !d.trained"
+         [attr.aria-current]="d.iso === date() ? 'date' : null"
+         [attr.title]="d.trained ? 'Trained' : d.rest ? 'Rest day' : null">
+        <span class="wd">{{ d.date | date: 'EEE' }}</span>
+        <span class="dn num">{{ d.date | date: 'd' }}</span>
+      </a>
+    </li>
+  }
+</ol>
+
+@if (store.error()) {
+  <p class="error">{{ store.error() }}</p>
+}
+
+@if (store.day(); as day) {
+  <div class="grid" [class.stale]="store.loading()">
+    <app-goal-panel class="wide" />
+    <app-food-panel />
+    <div class="stack">
+      <app-activity-panel />
+      <app-notes-panel />
+      <app-training-panel />
+    </div>
+    <app-analysis-panel class="wide" />
+  </div>
+}

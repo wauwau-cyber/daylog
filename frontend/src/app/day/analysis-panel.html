@@ -1,0 +1,50 @@
+<section class="panel panel--ai" [attr.aria-busy]="store.analyzing()">
+  <header>
+    <h2>Day review</h2>
+    <button class="btn" type="button" (click)="analyze()" [disabled]="!hasData() || store.analyzing()">
+      @if (store.analyzing()) { Analyzing… } @else if (result()) { Analyze again } @else { Analyze day }
+    </button>
+  </header>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (result(); as r) {
+    <div class="top">
+      <div class="score" [style.--p]="r.score * 10">
+        <div><span class="num">{{ r.score }}</span><small>/10</small></div>
+      </div>
+      <p class="summary">{{ r.summary }}</p>
+    </div>
+
+    <div class="columns">
+      <div>
+        <h3>Went well</h3>
+        <ul>@for (p of r.positives; track $index) { <li>{{ p }}</li> }</ul>
+      </div>
+      <div>
+        <h3>To improve</h3>
+        <ul>@for (p of r.improvements; track $index) { <li>{{ p }}</li> }</ul>
+      </div>
+      <div>
+        <h3>Training</h3>
+        <p>{{ r.training_feedback }}</p>
+        @if (r.training_kcal) {
+          <p class="burn num">About {{ r.training_kcal | number: '1.0-0' }} kcal burned</p>
+        }
+      </div>
+    </div>
+
+    <p class="tomorrow"><strong>Tomorrow:</strong> {{ r.tomorrow }}</p>
+    <p class="meta">Analyzed {{ analyzedAt() | date: 'd MMM, HH:mm' }} with {{ analysis()!.model }}. Values are estimates.</p>
+  } @else if (!store.analyzing()) {
+    <p class="empty">
+      @if (hasData()) {
+        Get nutrient estimates for every food entry and feedback on the whole day.
+      } @else {
+        Log food, weight or training first, then analyze the day.
+      }
+    </p>
+  }
+</section>

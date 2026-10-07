@@ -1,0 +1,86 @@
+<section class="page">
+  <h1>Settings</h1>
+
+  <div class="panel panel--ai">
+    <header>
+      <h2>Gemini API key</h2>
+      @if (settings(); as s) {
+        <span class="state num" [class.ok]="s.gemini_key_set">
+          {{ s.gemini_key_set ? 'Saved ' + s.gemini_key_hint : 'Not set' }}
+        </span>
+      }
+    </header>
+
+    <p class="text">
+      Needed for the day review. Create a free key at
+      <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>
+      and paste it here. It stays in your local database.
+    </p>
+
+    <form class="row" (ngSubmit)="saveKey()">
+      <input class="input" type="password" name="key" autocomplete="off" spellcheck="false"
+             placeholder="Paste your key" aria-label="Gemini API key" [(ngModel)]="key" />
+      <button class="btn" type="submit" [disabled]="!key().trim() || busy()">Save key</button>
+    </form>
+
+    @if (settings()?.gemini_key_set) {
+      <button class="link" type="button" (click)="removeKey()" [disabled]="busy()">Remove key</button>
+    }
+
+    <p class="privacy">
+      On Google's free tier, what you send may be used to improve Google's products and can be read by human reviewers.
+      Only send data you are comfortable sharing.
+    </p>
+
+    <details>
+      <summary>Model</summary>
+      <form class="row" (ngSubmit)="saveModel()">
+        <input class="input" name="model" spellcheck="false" placeholder="gemini-flash-latest"
+               aria-label="Gemini model" [(ngModel)]="model" />
+        <button class="btn btn--ghost" type="submit" [disabled]="busy()">Save model</button>
+      </form>
+      <p class="text small">Leave empty for gemini-flash-latest, which always points to the current free Flash model.</p>
+    </details>
+
+    @if (error()) { <p class="error">{{ error() }}</p> }
+    @if (notice()) { <p class="notice">{{ notice() }}</p> }
+  </div>
+
+  <div class="panel panel--notes" id="tags">
+    <header><h2>Day tags</h2></header>
+    <p class="text">Tap them in the Notes block of a day. "Rest day" also marks the day in the week strip.</p>
+
+    <form class="row" (ngSubmit)="addTag()">
+      <input class="input" name="tag" maxlength="50" autocomplete="off" placeholder="New tag, e.g. Long walk"
+             aria-label="Tag name" [(ngModel)]="tagName" />
+      <button class="btn btn--ghost" type="submit" [disabled]="!tagName().trim()">Add tag</button>
+    </form>
+
+    @if (tagError()) { <p class="error">{{ tagError() }}</p> }
+    @if (tagNotice()) { <p class="notice">{{ tagNotice() }}</p> }
+
+    <ul class="tag-list">
+      @for (tag of activeTags(); track tag.id) {
+        <li>
+          <span>{{ tag.name }}</span>
+          <span class="meta num">{{ tag.day_count ? tag.day_count + (tag.day_count === 1 ? ' day' : ' days') : '' }}</span>
+          <button class="link" type="button" (click)="removeTag(tag)">Remove</button>
+        </li>
+      }
+      @for (tag of hiddenTags(); track tag.id) {
+        <li class="hidden">
+          <span>{{ tag.name }}</span>
+          <span class="meta num">hidden, {{ tag.day_count }} {{ tag.day_count === 1 ? 'day' : 'days' }}</span>
+          <button class="link" type="button" (click)="restoreTag(tag)">Restore</button>
+        </li>
+      }
+    </ul>
+  </div>
+
+  @if (version(); as v) {
+    <p class="version num">
+      daylog {{ v.version === 'dev' ? 'development build' : 'v' + v.version }}
+      @if (v.update_available) { (v{{ v.latest }} available, run update.bat) }
+    </p>
+  }
+</section>
