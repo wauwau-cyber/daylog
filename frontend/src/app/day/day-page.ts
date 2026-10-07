@@ -10,11 +10,12 @@ import { AnalysisPanel } from './analysis-panel';
 import { GoalPanel } from './goal-panel';
 import { ActivityPanel } from './activity-panel';
 import { NotesPanel } from './notes-panel';
+import { Clock } from './clock';
 import { CalendarDay } from '../core/models';
 
 @Component({
   selector: 'app-day-page',
-  imports: [RouterLink, DatePipe, FoodPanel, TrainingPanel, AnalysisPanel, GoalPanel, ActivityPanel, NotesPanel],
+  imports: [RouterLink, DatePipe, FoodPanel, TrainingPanel, AnalysisPanel, GoalPanel, ActivityPanel, NotesPanel, Clock],
   providers: [DayStore],
   templateUrl: './day-page.html',
   styleUrl: './day-page.scss',
