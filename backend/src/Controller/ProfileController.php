@@ -47,7 +47,8 @@ final class ProfileController
             throw new HttpException('Invalid goal');
         }
         $pace = $goal === 'maintain' ? null : (string) ($request->body['pace'] ?? 'normal');
-        if ($pace !== null && !in_array($pace, ['slow', 'normal'], true)) {
+        $paces = $goal === 'lose' ? ['slow', 'normal', 'fast'] : ['slow', 'normal'];
+        if ($pace !== null && !in_array($pace, $paces, true)) {
             throw new HttpException('Invalid pace');
         }
         $targetWeight = ($request->body['target_weight_kg'] ?? null) === null

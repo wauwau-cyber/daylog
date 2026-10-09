@@ -47,6 +47,7 @@ $router->get("/api/days/$date", [DayController::class, 'show']);
 $router->put("/api/days/$date/weight", [DayController::class, 'saveWeight']);
 $router->put("/api/days/$date/steps", [DayController::class, 'saveSteps']);
 $router->post("/api/days/$date/foods", [DayController::class, 'addFood']);
+$router->put("/api/foods/$id", [DayController::class, 'updateFood']);
 $router->delete("/api/foods/$id", [DayController::class, 'deleteFood']);
 $router->get('/api/foods/suggestions', [FoodController::class, 'suggestions']);
 $router->post("/api/days/$date/sets", [DayController::class, 'addSet']);

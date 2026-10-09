@@ -134,6 +134,48 @@ final class DayController
         Response::json(DayRepository::mapFood($row), 201);
     }
 
+    /**
+     * PUT /api/foods/{id}: correct an entry by hand. Only the sent fields change.
+     * The entry is then marked 'manual', so the AI keeps these values on the next analysis.
+     */
+    public function updateFood(Request $request, string $id): void
+    {
+        $food = Database::one('SELECT * FROM food_entries WHERE id = ?', [(int) $id]);
+        if (!$food) {
+            throw new HttpException('Food entry not found', 404);
+        }
+
+        $limits = [
+            'calories_kcal' => 10000, 'protein_g' => 2000, 'carbs_g' => 2000, 'sugar_g' => 2000,
+            'fat_g' => 2000, 'saturated_fat_g' => 2000, 'fiber_g' => 2000, 'sodium_mg' => 100000,
+        ];
+
+        $set = [];
+        $params = [];
+        if (array_key_exists('description', $request->body)) {
+            $set[] = 'description = ?';
+            $params[] = $request->string('description', 500);
+        }
+        foreach ($limits as $field => $max) {
+            if (!array_key_exists($field, $request->body)) {
+                continue;
+            }
+            $set[] = "$field = ?";
+            $params[] = $request->body[$field] === null ? null : round($request->number($field, 0, $max), 1);
+        }
+        if (!$set) {
+            throw new HttpException('Nothing to update');
+        }
+
+        $nutrientsChanged = (bool) array_intersect(array_keys($limits), array_keys($request->body));
+        if ($nutrientsChanged) {
+            $set[] = "nutrients_source = 'manual'";
+        }
+
+        Database::exec('UPDATE food_entries SET ' . implode(', ', $set) . ' WHERE id = ?', [...$params, (int) $id]);
+        Response::json(DayRepository::mapFood(Database::one('SELECT * FROM food_entries WHERE id = ?', [(int) $id])));
+    }
+
     public function deleteFood(Request $request, string $id): void
     {
         if (Database::exec('DELETE FROM food_entries WHERE id = ?', [(int) $id]) === 0) {

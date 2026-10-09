@@ -19,7 +19,7 @@ final class Targets
 
     /** Daily kcal adjustment per goal and pace (≈ 7,700 kcal per kg body fat). */
     private const ADJUSTMENT = [
-        'lose' => ['slow' => -275, 'normal' => -550],   // ~0.25 / 0.5 kg per week
+        'lose' => ['slow' => -275, 'normal' => -550, 'fast' => -825],   // ~0.25 / 0.5 / 0.75 kg per week
         'gain' => ['slow' => 200, 'normal' => 350],     // lean gain
         'maintain' => ['slow' => 0, 'normal' => 0],
     ];
@@ -71,7 +71,7 @@ final class Targets
 
         $base = $bmr * self::BASE_FACTOR;
         $stepsKcal = $steps !== null ? $steps * $weight * self::STEP_KCAL_PER_KG : 0.0;
-        $adjustment = self::ADJUSTMENT[$goal['goal']][$goal['pace'] ?? 'normal'];
+        $adjustment = self::ADJUSTMENT[$goal['goal']][$goal['pace'] ?? 'normal'] ?? 0;
 
         $expected = $base + $stepsKcal + ($trainingKcal ?? 0) + $adjustment;
         $floored = $expected < $bmr;          // never target below resting metabolism

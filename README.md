@@ -49,7 +49,7 @@ Der Sollwert wird per Formel berechnet (`backend/src/Service/Targets.php`), dami
 | Grundumsatz (Mifflin-St-Jeor) × 1,2 | PHP |
 | Schritte × Gewicht × 0,0005 kcal | PHP |
 | Training aus den Sätzen | Gemini (`training_kcal`) |
-| Ziel: abnehmen −275/−550, aufbauen +200/+350 | PHP |
+| Ziel: abnehmen −275/−550/−825 (langsam/normal/schnell), aufbauen +200/+350 | PHP |
 
 Untergrenze ist der Grundumsatz. Protein: 1,8 / 1,6 / 2,0 g pro kg (abnehmen/halten/aufbauen), ab BMI 25 bezogen auf das Gewicht bei BMI 25. Ballaststoffe 30 g.
 Abgleich: kcal ±10 % = getroffen, Protein und Ballaststoffe ab 90 % = erreicht.
@@ -70,6 +70,7 @@ Gemini bekommt diese Werte pro trainierter Übung mitgeschickt. In der Wochenlei
 
 - `←` / `→` wechseln den Tag (außer wenn ein Eingabefeld fokussiert ist), Wochenleiste zum Springen
 - Essen: Text eingeben, Enter. Ein Eintrag pro Mahlzeit. Beim Tippen (oder Klick ins leere Feld) erscheinen frühere Einträge, häufigste zuerst. Auswahl mit Maus oder `↑`/`↓` + Enter übernimmt auch die Nährwerte, sodass das Essen sofort mitzählt. Gemini schätzt übernommene Werte bei der Analyse nicht neu.
+- Essen korrigieren: ✎ am Eintrag öffnet kcal, Protein, Kohlenhydrate, Fett, Ballaststoffe. Korrigierte Werte (`manual`) behält Gemini bei jeder Analyse bei und ergänzt nur leere Felder.
 - Gewicht und Schritte: speichern bei Enter oder beim Verlassen des Felds, leeren = löschen
 - Training: Übung + Wiederholungen, `+` pro Satz. Reps bleiben stehen, damit der nächste Satz ein Klick ist. `✕` am Satz löscht ihn
 - Notes: Tags antippen (z. B. Rest day, Sick) und freie Notiz, speichert beim Verlassen des Felds. Tags verwalten unter Settings. Rest days sind in der Wochenleiste gestrichelt umrandet. Gemini bekommt Tags und Notiz als Kontext.
@@ -104,7 +105,7 @@ frontend/src/app/
 | GET | `/api/days/{date}` | Alles zu einem Tag inkl. letzter Analyse |
 | PUT | `/api/days/{date}/weight` | `{ weight_kg }`, `null` löscht |
 | PUT | `/api/days/{date}/steps` | `{ steps }`, `null` löscht |
-| POST / DELETE | `/api/days/{date}/foods`, `/api/foods/{id}` | Essen (`from_food_id` übernimmt Nährwerte) |
+| POST / PUT / DELETE | `/api/days/{date}/foods`, `/api/foods/{id}` | Essen (`from_food_id` übernimmt Nährwerte, PUT korrigiert von Hand) |
 | GET | `/api/foods/suggestions?q=&limit=` | Frühere Essen, häufigste zuerst |
 | PUT | `/api/days/{date}/tags`, `/api/days/{date}/note` | Tags des Tages (`tag_ids`), Notiz |
 | GET/POST/DELETE | `/api/tags[?include=archived]`, `/api/tags/{id}`, `/api/tags/{id}/restore` | Tags verwalten |

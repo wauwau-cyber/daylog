@@ -35,21 +35,48 @@
   @if (foods().length) {
     <ul class="foods">
       @for (food of foods(); track food.id) {
-        <li>
-          <time class="num">{{ food.created_at.slice(11, 16) }}</time>
-          <div class="body">
-            <p>{{ food.description }}</p>
-            @if (food.calories_kcal !== null) {
-              <div class="macros num">
-                <span>{{ food.calories_kcal | number: '1.0-0' }} kcal</span>
-                <span><b>{{ food.protein_g | number: '1.0-0' }}</b> g protein</span>
-                <span>{{ food.carbs_g | number: '1.0-0' }} g carbs</span>
-                <span>{{ food.fat_g | number: '1.0-0' }} g fat</span>
+        @if (editingId() === food.id) {
+          <li class="editing">
+            <form class="editor" (ngSubmit)="saveEdit(food)">
+              <input class="input" name="description" maxlength="500" aria-label="Description"
+                     [ngModel]="draft()['description']" (ngModelChange)="setDraft('description', $event)" />
+              <div class="values">
+                @for (f of editFields; track f.key) {
+                  <label class="field">
+                    <span>{{ f.label }}</span>
+                    <input class="input num" inputmode="decimal" [name]="f.key" [attr.aria-label]="f.label" placeholder="–"
+                           [ngModel]="draft()[f.key]" (ngModelChange)="setDraft(f.key, $event)" />
+                  </label>
+                }
               </div>
-            }
-          </div>
-          <button class="icon-btn" type="button" (click)="deleteFood(food.id)" [attr.aria-label]="'Delete ' + food.description">✕</button>
-        </li>
+              <div class="actions">
+                <button class="btn" type="submit" [disabled]="busy()">Save</button>
+                <button class="btn btn--ghost" type="button" (click)="cancelEdit()">Cancel</button>
+                <span class="hint">Your values are kept on the next analysis.</span>
+              </div>
+            </form>
+          </li>
+        } @else {
+          <li>
+            <time class="num">{{ food.created_at.slice(11, 16) }}</time>
+            <div class="body">
+              <p>{{ food.description }}</p>
+              @if (food.calories_kcal !== null) {
+                <div class="macros num">
+                  <span>{{ food.calories_kcal | number: '1.0-0' }} kcal</span>
+                  @if (food.protein_g !== null) { <span><b>{{ food.protein_g | number: '1.0-0' }}</b> g protein</span> }
+                  @if (food.carbs_g !== null) { <span>{{ food.carbs_g | number: '1.0-0' }} g carbs</span> }
+                  @if (food.fat_g !== null) { <span>{{ food.fat_g | number: '1.0-0' }} g fat</span> }
+                  @if (food.nutrients_source === 'manual') { <span class="edited">edited</span> }
+                </div>
+              }
+            </div>
+            <div class="row-actions">
+              <button class="icon-btn edit" type="button" (click)="startEdit(food)" [attr.aria-label]="'Edit ' + food.description" title="Edit">✎</button>
+              <button class="icon-btn" type="button" (click)="deleteFood(food.id)" [attr.aria-label]="'Delete ' + food.description" title="Delete">✕</button>
+            </div>
+          </li>
+        }
       }
     </ul>
   } @else {

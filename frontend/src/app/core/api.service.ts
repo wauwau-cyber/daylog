@@ -58,6 +58,11 @@ export class ApiService {
     return this.call(this.http.get<FoodSuggestion[]>(`/api/foods/suggestions?${params}`));
   }
 
+  /** Hand correction; only sent fields change, nutrients become "manual". */
+  updateFood(id: number, changes: Partial<Pick<FoodEntry, 'description' | 'calories_kcal' | 'protein_g' | 'carbs_g' | 'fat_g' | 'fiber_g'>>) {
+    return this.call(this.http.put<FoodEntry>(`/api/foods/${id}`, changes));
+  }
+
   deleteFood(id: number) {
     return this.call(this.http.delete<void>(`/api/foods/${id}`));
   }

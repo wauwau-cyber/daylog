@@ -1,6 +1,6 @@
 export type Gender = 'male' | 'female' | 'other';
 export type GoalType = 'lose' | 'maintain' | 'gain';
-export type Pace = 'slow' | 'normal';
+export type Pace = 'slow' | 'normal' | 'fast';
 
 export interface Goal {
   goal: GoalType;

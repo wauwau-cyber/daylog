@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { ApiService } from '../core/api.service';
 import { todayIso } from '../core/dates';
 import { Gender, GoalType, Pace } from '../core/models';
-import { GOAL_LABELS, PACE_HINTS } from '../core/goal-labels';
+import { GOAL_LABELS, PACE_HINTS, PACE_LABELS, PACES } from '../core/goal-labels';
 
 @Component({
   selector: 'app-setup-page',
@@ -40,12 +40,18 @@ export class SetupPage implements OnInit {
   protected readonly paces = computed(() => {
     const goal = this.goal();
     if (goal === 'maintain') return [];
-    return (['slow', 'normal'] as Pace[]).map(value => ({
+    return PACES[goal].map(value => ({
       value,
-      label: value === 'slow' ? 'Slow' : 'Normal',
-      hint: PACE_HINTS[goal][value],
+      label: PACE_LABELS[value],
+      hint: PACE_HINTS[goal][value] ?? '',
     }));
   });
+
+  /** Switching from "lose, fast" to "gain" must not keep a pace that gain doesn't offer. */
+  protected setGoal(goal: GoalType) {
+    this.goal.set(goal);
+    if (goal !== 'maintain' && !PACES[goal].includes(this.pace())) this.pace.set('normal');
+  }
 
   async ngOnInit() {
     try {

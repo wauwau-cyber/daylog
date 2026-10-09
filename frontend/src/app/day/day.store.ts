@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ApiService } from '../core/api.service';
-import { Day, Exercise, Tag } from '../core/models';
+import { Day, Exercise, FoodEntry, Tag } from '../core/models';
 
 /** State for the day page. Provided per page instance. */
 @Injectable()
@@ -83,6 +83,12 @@ export class DayStore {
     const date = this.date();
     const food = await this.api.addFood(date, description, fromFoodId);
     this.patch(date, d => ({ ...d, foods: [...d.foods, food] }));
+  }
+
+  async updateFood(id: number, changes: Parameters<ApiService['updateFood']>[1]) {
+    const date = this.date();
+    const food = await this.api.updateFood(id, changes);
+    this.patch(date, d => ({ ...d, foods: d.foods.map((f: FoodEntry) => (f.id === id ? food : f)) }));
   }
 
   async deleteFood(id: number) {

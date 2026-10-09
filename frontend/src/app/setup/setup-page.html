@@ -43,7 +43,7 @@
       <div class="segmented">
         @for (g of goals; track g.value) {
           <label [class.on]="goal() === g.value">
-            <input type="radio" name="goal" [value]="g.value" [(ngModel)]="goal" />
+            <input type="radio" name="goal" [value]="g.value" [ngModel]="goal()" (ngModelChange)="setGoal($event)" />
             {{ g.label }}
           </label>
         }
@@ -53,7 +53,7 @@
     @if (paces().length) {
       <fieldset class="field">
         <legend>Pace</legend>
-        <div class="segmented two">
+        <div class="segmented" [class.two]="paces().length === 2">
           @for (p of paces(); track p.value) {
             <label [class.on]="pace() === p.value">
               <input type="radio" name="pace" [value]="p.value" [(ngModel)]="pace" />

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { fromIso } from '../core/dates';
 import { DayStore } from './day.store';
 import { FoodInput, FoodPick } from './food-input';
+import { FoodEntry } from '../core/models';
 
 @Component({
   selector: 'app-food-panel',
@@ -49,6 +50,59 @@ export class FoodPanel {
 
   async addFood(pick: FoodPick) {
     await this.run(() => this.store.addFood(pick.description, pick.fromFoodId));
+  }
+
+  /** Fields offered in the editor; the rest (sugar, sodium, ...) stay as estimated. */
+  protected readonly editFields = [
+    { key: 'calories_kcal', label: 'kcal' },
+    { key: 'protein_g', label: 'Protein g' },
+    { key: 'carbs_g', label: 'Carbs g' },
+    { key: 'fat_g', label: 'Fat g' },
+    { key: 'fiber_g', label: 'Fiber g' },
+  ] as const;
+
+  protected readonly editingId = signal<number | null>(null);
+  protected readonly draft = signal<Record<string, string>>({});
+
+  protected startEdit(food: FoodEntry) {
+    const draft: Record<string, string> = { description: food.description };
+    for (const f of this.editFields) draft[f.key] = food[f.key] === null ? '' : String(food[f.key]);
+    this.draft.set(draft);
+    this.editingId.set(food.id);
+    this.error.set(null);
+  }
+
+  protected setDraft(key: string, value: unknown) {
+    this.draft.update(d => ({ ...d, [key]: value === null || value === undefined ? '' : String(value) }));
+  }
+
+  protected cancelEdit() {
+    this.editingId.set(null);
+  }
+
+  /** Sends only what changed, so fixing a typo in the text doesn't mark the nutrients as manual. */
+  async saveEdit(food: FoodEntry) {
+    const d = this.draft();
+    const changes: Record<string, string | number | null> = {};
+    const description = (d['description'] ?? '').trim();
+    if (description && description !== food.description) changes['description'] = description;
+    for (const f of this.editFields) {
+      const raw = (d[f.key] ?? '').trim().replace(',', '.');
+      const value = raw === '' ? null : Number(raw);
+      if (value !== null && (Number.isNaN(value) || value < 0)) {
+        this.error.set(`${f.label} must be a positive number.`);
+        return;
+      }
+      if (value !== food[f.key]) changes[f.key] = value;
+    }
+    if (!Object.keys(changes).length) {
+      this.editingId.set(null);
+      return;
+    }
+    await this.run(async () => {
+      await this.store.updateFood(food.id, changes);
+      this.editingId.set(null);
+    });
   }
 
   async deleteFood(id: number) {

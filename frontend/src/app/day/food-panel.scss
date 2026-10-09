@@ -35,7 +35,7 @@
 
   li {
     display: grid;
-    grid-template-columns: 44px 1fr auto;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
     gap: 10px;
     align-items: start;
     padding: 10px 0;
@@ -71,3 +71,47 @@
 }
 
 .hint { margin: 10px 0 0; font-size: 0.85rem; color: var(--muted); }
+
+.row-actions { display: flex; gap: 2px; }
+.icon-btn.edit:hover { color: var(--food); background: #f0b35a14; }
+
+.edited {
+  padding: 0 6px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.foods li.editing { display: block; }
+
+.editor {
+  --accent: var(--food);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 0;
+
+  .values {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .field span { font-size: 0.75rem; }
+  .input { min-height: 40px; }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn { min-height: 38px; }
+  .hint { margin: 0; color: var(--muted); font-size: 0.8rem; }
+}
+
+@media (max-width: 520px) {
+  .editor .values { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

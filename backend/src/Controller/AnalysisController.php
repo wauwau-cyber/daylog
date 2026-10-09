@@ -20,7 +20,7 @@ final class AnalysisController
 
         1. Estimate nutrients for EVERY food entry from its description. Descriptions may be in any language.
            If no amount is given, assume a typical single portion. Return the entry's id unchanged.
-           If an entry has known_nutrients, return exactly those values instead of estimating.
+           If an entry has known_nutrients, return exactly those values and estimate only the missing ones.
         2. Estimate training_kcal: extra energy burned by the logged sets beyond resting metabolism.
            Use 0 if no sets were logged. Steps are already accounted for, do not count them again.
         3. The calorie, protein and fiber targets are calculated by the app. Do not invent your own targets.
@@ -108,7 +108,7 @@ final class AnalysisController
                 'logged_at' => substr($f['created_at'], 11, 5),
                 // values the user already confirmed earlier; the model must not re-estimate them
                 'known_nutrients' => self::isKnown($f)
-                    ? array_intersect_key($f, array_flip(DayRepository::NUTRIENTS))
+                    ? array_filter(array_intersect_key($f, array_flip(DayRepository::NUTRIENTS)), fn($v) => $v !== null)
                     : null,
             ], $day['foods']),
             'training' => array_values($training),
@@ -117,26 +117,29 @@ final class AnalysisController
 
     private function store(string $date, array $day, string $model, array $input, array $result): void
     {
-        // only AI-estimated entries are (re)written; copied/manual values stay as they are
-        $writableIds = array_column(array_filter($day['foods'], fn($f) => !self::isKnown($f)), 'id');
+        $foodsById = array_column($day['foods'], null, 'id');
 
         $pdo = Database::pdo();
         $pdo->beginTransaction();
 
-        $assignments = implode(', ', array_map(fn($n) => "$n = ?", DayRepository::NUTRIENTS));
+        $overwrite = implode(', ', array_map(fn($n) => "$n = ?", DayRepository::NUTRIENTS));
+        // copied/manual entries: keep the user's values, only fill fields that are still empty
+        $fillGaps = implode(', ', array_map(fn($n) => "$n = COALESCE($n, ?)", DayRepository::NUTRIENTS));
+
         foreach ($result['foods'] ?? [] as $food) {
             $id = (int) ($food['id'] ?? 0);
-            if (!in_array($id, $writableIds, true)) {
-                continue; // known values, or an id that isn't from this day
+            if (!isset($foodsById[$id])) {
+                continue; // an id that isn't from this day
             }
             $values = [];
             foreach (DayRepository::NUTRIENTS as $n) {
                 $values[] = max(0.0, round((float) ($food[$n] ?? 0), 1));
             }
-            Database::exec(
-                "UPDATE food_entries SET $assignments, nutrients_source = 'ai' WHERE id = ?",
-                [...$values, $id]
-            );
+            if (self::isKnown($foodsById[$id])) {
+                Database::exec("UPDATE food_entries SET $fillGaps WHERE id = ?", [...$values, $id]);
+            } else {
+                Database::exec("UPDATE food_entries SET $overwrite, nutrients_source = 'ai' WHERE id = ?", [...$values, $id]);
+            }
         }
 
         $sums = implode(', ', array_map(fn($n) => "COALESCE(SUM($n), 0) AS $n", DayRepository::NUTRIENTS));
@@ -168,7 +171,7 @@ final class AnalysisController
 
     private static function isKnown(array $food): bool
     {
-        return in_array($food['nutrients_source'], ['copied', 'manual'], true) && $food['calories_kcal'] !== null;
+        return in_array($food['nutrients_source'], ['copied', 'manual'], true);
     }
 
     /** Gemini response schema (OpenAPI subset). */
